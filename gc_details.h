@@ -30,7 +30,7 @@ bool operator==(const PtrDetails<T> &ob1,
                 const PtrDetails<T> &ob2)
 {
     // TODO: Implement operator==
-    //I added
+    //I added this
     return (ob1.memPtr == ob2.memPtr);
 }
 
