@@ -24,6 +24,7 @@ private:
         to an allocated array. It is false
         otherwise. 
     */
+
     bool isArray; 
     // true if pointing to array
     // If this Pointer is pointing to an allocated
@@ -119,24 +120,51 @@ Pointer<T,size>::Pointer(const Pointer &ob){
 
 }
 
-// Destructor for Pointer.
-template <class T, int size>
+//Destructor for Pointer.   
+template <class T, int size>  //this line is needed before every function built.
 Pointer<T, size>::~Pointer(){
-    
-    // TODO: Implement Pointer destructor
-    // Lab: New and Delete Project Lab
+    typename std::list<PtrDetails<T> >::iterator p;
+    p = findPtrInfo(addr);
+
+    //TODO:  Finalize Pointer destructor
+    //decrement ref count
+
+    //PtrDetails::refcount--;  //I added needs to be called to gc_details
+
+    //Collect garbage when a pointer goes out of scope
+
+    //For real use, you might want to collect unused memory less frequently,
+    //such as after refContainer has reached a certain size, after a certain number of Pointers
+    //have gone out of scope, or when memory is low.
 }
+
 
 // Collect garbage. Returns true if at least
 // one object was freed.
 template <class T, int size>
 bool Pointer<T, size>::collect(){
+    bool memfreed = false;
+    typename std::list<PtrDetails<T> >::iterator p;
+    do{
+        //Scan refContainer looking for unreferenced pointers.
+        for (p = refContainer.begin(); p != refContainer.end(); p++){
+            //TODO: Implement collect()
+            //If in-use, skip.
 
-    // TODO: Implement collect function
-    // LAB: New and Delete Project Lab
-    // Note: collect() will be called in the destructor
-    return false;
-}
+            //Remove unused entry from refContainer.
+
+            //Free memory unless the Pointer is null.
+
+            //Restart the search.
+            break;
+        }
+
+    } while (p != refContainer.end());
+    return memfreed;
+    //return false;      //this line was in the prewritten, but NOT the lab. memfreed is set to
+    //false in the beginning of this function, so if it isn't changed then it will return false
+} //DONE
+
 
 // Overload assignment of pointer to Pointer.
 template <class T, int size>
@@ -152,8 +180,8 @@ Pointer<T, size> &Pointer<T, size>::operator=(Pointer &rv){
 
     // TODO: Implement operator==
     // LAB: Smart Pointer Project Lab
-
-}
+    typename std::list<PtrDetails<T> >::iterator p;
+}//DONE
 
 // A utility function that displays refContainer.
 template <class T, int size>
