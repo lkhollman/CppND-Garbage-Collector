@@ -107,6 +107,20 @@ Pointer<T,size>::Pointer(T *t){
         atexit(shutdown);
     first = false;
 
+    //from lhosszu
+    // Create new PtrDetails instance, and push it to the refContainer list
+    PtrDetails<T> p_details(t, size);
+    refContainer.push_back(p_details);
+    //Initialize Pointer member variables
+    addr = p_details.memPtr;
+    arraySize = p_details.arraySize;
+    isArray = p_details.isArray;
+    //Find PtrDetails in the refContainer, and increment refcount
+    typename std::list<PtrDetails<T>>::iterator p_details_iterator; 
+    p_details_iterator = findPtrInfo(addr);
+    p_details_iterator -> refcount++;
+    //from lhosszu
+
     // TODO: Implement Pointer constructor
     // Lab: Smart Pointer Project Lab
 
@@ -115,16 +129,38 @@ Pointer<T,size>::Pointer(T *t){
 template< class T, int size>
 Pointer<T,size>::Pointer(const Pointer &ob){
 
+    //from lhosszu
+    //Initialize member variables for new object, based on ob
+    this -> addr = ob.addr;
+    this -> arraySize = ob.arraySize;
+    this -> isArray = ob.isArray;
+    //Find the PtrDetails pointing to that memory address, and increment refcount
+    typename std::list<PtrDetails<T>>::iterator p_details_iterator;
+    p_details_iterator = findPtrInfo(ob.addr);
+    p_details_iterator -> refcount++;
+    //from lhosszu
+
+
     // TODO: Implement Pointer constructor
     // Lab: Smart Pointer Project Lab
-
 }
 
 //Destructor for Pointer.   
+//Decrement refcount if object goes out of scope
+//Free the memory with collect()
 template <class T, int size>  //this line is needed before every function built.
 Pointer<T, size>::~Pointer(){
-    typename std::list<PtrDetails<T> >::iterator p;
-    p = findPtrInfo(addr);
+    typename std::list<PtrDetails<T> >::iterator p_details;  //p_details ??
+    p_details = findPtrInfo(addr);    //p_details???
+
+    //from lhosszu
+    if(p_details -> refcount){
+        p_details -> refcount--;
+    }
+    collect();
+    //from lhosszu
+
+
 
     //TODO:  Finalize Pointer destructor
     //decrement ref count
@@ -144,13 +180,28 @@ Pointer<T, size>::~Pointer(){
 template <class T, int size>
 bool Pointer<T, size>::collect(){
     bool memfreed = false;
-    typename std::list<PtrDetails<T> >::iterator p;
+    typename std::list<PtrDetails<T> >::iterator p_details;
     do{
         //Scan refContainer looking for unreferenced pointers.
-        for (p = refContainer.begin(); p != refContainer.end(); p++){
+        for (p_details = refContainer.begin(); p_details != refContainer.end(); p_details++){  //p_details, not p??
+
+            //from lhosszu
+            if((p_details -> refcount) > 0) continue;   //skip if in use
+            memfreed = true;   // memfreed??
+            refContainer.remove(*p_details);  //remove the unused entry
+            if(p_details -> memPtr != nullptr){
+                if(p_details -> isArray){
+                    delete[] p_details -> memPtr;
+                    } else {
+                        delete p_details -> memPtr;
+                        }
+                        }
+            //from lhosszu
+        
+
+
             //TODO: Implement collect()
             //If in-use, skip.
-
             //Remove unused entry from refContainer.
 
             //Free memory unless the Pointer is null.
@@ -158,9 +209,10 @@ bool Pointer<T, size>::collect(){
             //Restart the search.
             break;
         }
+    } while (p_details != refContainer.end());   //p_details ??
+    return memfreed;    //is_memory_freed??
 
-    } while (p != refContainer.end());
-    return memfreed;
+
     //return false;      //this line was in the prewritten, but NOT the lab. memfreed is set to
     //false in the beginning of this function, so if it isn't changed then it will return false
 } //DONE
@@ -170,6 +222,22 @@ bool Pointer<T, size>::collect(){
 template <class T, int size>
 T *Pointer<T, size>::operator=(T *t){
 
+    //from lhosszu
+    //Find PtrDetails pointing to the addr, decrement the refcount
+    typename std::list<PtrDetails<T>>::iterator p_details;
+    p_details = findPtrInfo(addr);
+    p_details -> refcount--;
+    //Create new object, push it to refContainer and initialize member variables
+    PtrDetails<T> p(t, size);
+    refContainer.push_back(p);
+    addr = p.memPtr;
+    arraySize = p.arraySize;
+    isArray = p.isArray;
+    p_details = findPtrInfo(addr);
+    p_details -> refcount++;
+    return addr;
+    //from lhosszu
+
     // TODO: Implement operator==
     // LAB: Smart Pointer Project Lab
 
@@ -177,10 +245,20 @@ T *Pointer<T, size>::operator=(T *t){
 // Overload assignment of Pointer to Pointer.
 template <class T, int size>
 Pointer<T, size> &Pointer<T, size>::operator=(Pointer &rv){
+    typename std::list<PtrDetails<T> >::iterator p;
+
+    //from lhosszu
+    p = findPtrInfo(addr);
+    p -> refcount--;
+    p = findPtrInfo(rv.addr);
+    p -> refcount++;
+    addr = rv.addr;
+    return rv;
+    //from lhosszu
 
     // TODO: Implement operator==
     // LAB: Smart Pointer Project Lab
-    typename std::list<PtrDetails<T> >::iterator p;
+    
 }//DONE
 
 // A utility function that displays refContainer.

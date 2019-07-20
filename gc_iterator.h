@@ -1,3 +1,6 @@
+#include <iostream>
+using namespace std;
+
 // Exception thrown when an attempt is made to
 // use an Iter that exceeds the range of the
 // underlying object.
@@ -19,6 +22,7 @@ template <class T>
 class Iter
 {
     T *ptr;
+    
     // current pointer value
     T *end;
     // points to element one past end

@@ -10,7 +10,7 @@ class PtrDetails
     /* isArray is true if memPtr points
 to an allocated array. It is false
 otherwise. */
-    bool isArray; // true if pointing to array
+    bool isArray = false; // true if pointing to array     //added = false
     /* If memPtr is pointing to an allocated
        array, then arraySize contains its size */
     unsigned arraySize; // size of array
@@ -19,19 +19,18 @@ otherwise. */
     // the size of the array.
 
 
-    //added from another project
-    PtrDetails(T* t, unsigned size = 0) : memPtr(t), arraySize(size){
+    //from lhosszu
+    PtrDetails(T *ptr, unsigned int size = 0){ 
 
         // TODO: Implement PtrDetails
-        isArray = size > 0;
-    }
 
-/* 
-    PtrDetails(void)
-    {
-        // TODO: Implement PtrDetails
-    }
-    */
+        this -> memPtr = ptr;
+        this -> refcount = 1;
+        this -> arraySize = size;
+        if(size > 0){
+            isArray = true;
+        }
+    }  //from lhosszu
 };
 
 
@@ -46,9 +45,4 @@ bool operator==(const PtrDetails<T> &ob1,
     //I added this
     return (ob1.memPtr == ob2.memPtr);
 
-    //from another project
- /*   return *(obj1->memPtr) == *(obj2->memPtr) &&
-            obj1->refcount == obj2->refcount &&
-            obj1->arraySize == obj2->arraySize;
-            */
 }
